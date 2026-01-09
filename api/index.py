@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 from app.schemas import (
@@ -89,8 +88,6 @@ app = FastAPI(
 
 BASE_DIR = Path(__file__).parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
-
-app.mount("/templates", StaticFiles(directory=str(TEMPLATES_DIR)), name="templates")
 
 app.add_middleware(
     CORSMiddleware,
@@ -276,6 +273,32 @@ async def model_info():
         lookback=settings.LOOKBACK,
         features=settings.FEATURES,
         target=settings.TARGET
+    )
+
+
+@app.get(
+    "/templates/example.csv",
+    tags=["Static"],
+    summary="CSV de exemplo",
+    description="Baixa arquivo CSV de exemplo para testes"
+)
+async def get_example_csv():
+    """
+    Serve o arquivo CSV de exemplo
+    
+    Returns:
+        FileResponse com o CSV
+    """
+    csv_path = TEMPLATES_DIR / "example.csv"
+    if csv_path.exists():
+        return FileResponse(
+            str(csv_path),
+            media_type="text/csv",
+            filename="example.csv"
+        )
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="CSV de exemplo não encontrado"
     )
 
 
