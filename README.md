@@ -6,19 +6,19 @@ API RESTful construída com FastAPI para servir predições de preços de açõe
 
 - ✅ **Interface web moderna** com identidade visual Amazon
 - ✅ **Predição de preços** com modelo LSTM
-- ✅ **Deploy serverless** na Vercel
+- ✅ **Deploy na Railway** (suporta TensorFlow)
 - ✅ **Upload de CSV** ou entrada manual via JSON
-- ✅ **Monitoramento integrado** com Vercel Observability
+- ✅ **Monitoramento** com logs em tempo real
 - ✅ **Validação robusta** de entrada com Pydantic
 - ✅ **Health checks** e métricas
 - ✅ **CI/CD automático** via GitHub
 
 ## 📋 Requisitos
 
-- Python 3.9+
+- Python 3.12+
 - Modelo LSTM treinado (`amzn_lstm_model.keras`)
 - Scaler treinado (`scaler.save`)
-- Conta na Vercel (gratuita)
+- Conta na Railway (gratuita)
 - Repositório no GitHub
 
 ## 🏗️ Arquitetura

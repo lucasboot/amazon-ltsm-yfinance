@@ -45,8 +45,8 @@ ENV/
 .coverage
 htmlcov/
 
-# Vercel
-.vercel
+# Railway
+.railway
 
 # OS
 .DS_Store
