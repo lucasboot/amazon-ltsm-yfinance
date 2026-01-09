@@ -176,3 +176,5 @@ def clear_cache():
     _load_attempted = False
     logger.info("Cache de modelo e scaler limpo")
 
+
+

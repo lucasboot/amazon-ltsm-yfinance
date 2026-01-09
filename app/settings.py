@@ -79,3 +79,5 @@ class Settings:
 # Instância singleton
 settings = Settings()
 
+
+

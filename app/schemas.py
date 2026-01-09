@@ -117,3 +117,5 @@ class ErrorResponse(BaseModel):
     detail: str | None = Field(None, description="Detalhes adicionais do erro")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
+
+

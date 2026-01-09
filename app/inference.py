@@ -238,3 +238,5 @@ class InferencePipeline:
 # Instância global do pipeline
 inference_pipeline = InferencePipeline()
 
+
+

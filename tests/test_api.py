@@ -151,3 +151,5 @@ if __name__ == "__main__":
     # Executar testes com: pytest tests/test_api.py -v
     pytest.main([__file__, "-v"])
 
+
+

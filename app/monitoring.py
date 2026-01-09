@@ -244,3 +244,5 @@ def log_health_check(status: str, model_loaded: bool, scaler_loaded: bool):
         scaler_loaded=scaler_loaded
     )
 
+
+

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon LSTM - Predição de Preços</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #232F3E 0%, #37475A 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #0F1111;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header com logo Amazon */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .amazon-logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0F1111;
+            position: relative;
+        }
+
+        .amazon-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #FF9900;
+            border-radius: 2px;
+        }
+
+        .header-title {
+            color: #0F1111;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            color: #565959;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Card principal */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: #232F3E;
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .card-description {
+            color: #DDD;
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #E3E6E6;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #565959;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #FF9900;
+        }
+
+        .tab.active {
+            color: #0F1111;
+            border-bottom-color: #FF9900;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Upload area */
+        .upload-area {
+            border: 2px dashed #D5D9D9;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #F7F8F8;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #FF9900;
+            background: #FFF8F0;
+        }
+
+        .upload-area.dragover {
+            border-color: #FF9900;
+            background: #FFF8F0;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #FF9900;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: #0F1111;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #565959;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #0F1111;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #D5D9D9;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 200px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #FF9900;
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #FF9900;
+            color: #0F1111;
+        }
+
+        .btn-primary:hover {
+            background: #FA8900;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: #E3E6E6;
+            color: #0F1111;
+        }
+
+        .btn-secondary:hover {
+            background: #D5D9D9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Result area */
+        .result {
+            display: none;
+            background: #F7F8F8;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid #E3E6E6;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-success {
+            border-color: #067D62;
+            background: #F0F9F7;
+        }
+
+        .result-error {
+            border-color: #C40000;
+            background: #FFF5F5;
+        }
+
+        .result-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-icon.success {
+            color: #067D62;
+        }
+
+        .result-icon.error {
+            color: #C40000;
+        }
+
+        .prediction-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #067D62;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .result-label {
+            color: #565959;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #0F1111;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #E3E6E6;
+            border-top: 4px solid #FF9900;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Info box */
+        .info-box {
+            background: #FFF8F0;
+            border-left: 4px solid #FF9900;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #0F1111;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-text {
+            color: #565959;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #FF9900;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                text-align: left;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-container">
+                <div class="amazon-logo">amazon</div>
+                <div>
+                    <div class="header-title">LSTM Stock Price Prediction</div>
+                    <div class="header-subtitle">Powered by Machine Learning</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <a href="/docs" style="color: #146EB4; text-decoration: none; font-size: 14px;">
+                    <i class="fas fa-book"></i> API Docs
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-chart-line"></i> Previsão de Preços</div>
+                <div class="card-description">Faça upload de dados históricos ou insira manualmente para obter uma predição</div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('upload')">
+                        <i class="fas fa-upload"></i> Upload CSV
+                    </button>
+                    <button class="tab" onclick="switchTab('manual')">
+                        <i class="fas fa-keyboard"></i> Entrada Manual
+                    </button>
+                </div>
+
+                <!-- Tab 1: Upload CSV -->
+                <div id="upload-tab" class="tab-content active">
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".csv" onchange="handleFileSelect(event)">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Arraste um arquivo CSV aqui</div>
+                        <div class="upload-hint">ou clique para selecionar</div>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); document.getElementById('fileInput').click();" style="margin-top: 15px;">
+                            <i class="fas fa-folder-open"></i> Escolher Arquivo
+                        </button>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-title">
+                            <i class="fas fa-info-circle"></i> Formato do CSV
+                        </div>
+                        <div class="info-text">
+                            O arquivo deve conter as colunas: <code>Open,High,Low,Close,Volume</code><br>
+                            (Case-insensitive: aceita maiúsculas ou minúsculas)<br>
+                            Mínimo de 60 linhas de dados históricos.<br>
+                            <a href="/templates/example.csv" download style="color: #146EB4;">
+                                <i class="fas fa-download"></i> Baixar CSV de exemplo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Manual Entry -->
+                <div id="manual-tab" class="tab-content">
+                    <div class="form-group">
+                        <label for="manualData">
+                            <i class="fas fa-edit"></i> Cole os dados no formato JSON
+                        </label>
+                        <textarea id="manualData" placeholder='{"data": [{"open": 150.2, "high": 152.1, "low": 149.8, "close": 151.5, "volume": 1000000}, ...]}'></textarea>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-title">
+                            <i class="fas fa-info-circle"></i> Formato JSON
+                        </div>
+                        <div class="info-text">
+                            Cole um JSON com a chave "data" contendo um array de objetos com: open, high, low, close, volume.<br>
+                            <strong>⚠️ Use a aba "Upload CSV" para arquivos CSV!</strong> Esta aba é apenas para JSON.<br>
+                            Exemplo disponível em <a href="/tests/test_payload.json" target="_blank" style="color: #146EB4;">test_payload.json</a>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="predictManual()">
+                            <i class="fas fa-magic"></i> Fazer Predição
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearManual()">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <div style="color: #565959;">Processando predição...</div>
+                </div>
+
+                <!-- Result -->
+                <div id="result" class="result">
+                    <div class="result-icon" id="resultIcon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div id="resultContent"></div>
+                    <div class="btn-group" style="justify-content: center; margin-top: 30px;">
+                        <button class="btn btn-primary" onclick="resetForm()">
+                            <i class="fas fa-redo"></i> Nova Predição
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎓 Projeto Acadêmico - Pós-Tech | Uso educacional da marca Amazon</p>
+            <p><a href="/health">Status da API</a> | <a href="/model/info">Info do Modelo</a> | <a href="/metrics">Métricas</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'upload') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('upload-tab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('manual-tab').classList.add('active');
+            }
+            
+            resetForm();
+        }
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        // Remover o click duplicado - apenas o botão abre o dialog
+        uploadArea.addEventListener('click', (e) => {
+            // Só abre o dialog se não for clique no botão
+            if (e.target.tagName !== 'BUTTON' && e.target.closest('button') === null) {
+                fileInput.click();
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                showError('Por favor, selecione um arquivo CSV válido.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                parseCSVAndPredict(content);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVAndPredict(csvContent) {
+            try {
+                const lines = csvContent.trim().split('\n');
+                const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+                
+                // Validar headers
+                const requiredHeaders = ['open', 'high', 'low', 'close', 'volume'];
+                const hasAllHeaders = requiredHeaders.every(h => headers.includes(h));
+                
+                if (!hasAllHeaders) {
+                    showError('CSV deve conter as colunas: open, high, low, close, volume');
+                    return;
+                }
+
+                // Parse data
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const values = lines[i].split(',').map(v => v.trim());
+                    const row = {};
+                    
+                    headers.forEach((header, index) => {
+                        if (requiredHeaders.includes(header)) {
+                            row[header] = parseFloat(values[index]);
+                        }
+                    });
+                    
+                    data.push(row);
+                }
+
+                if (data.length < 60) {
+                    showError(`CSV deve conter pelo menos 60 linhas de dados. Encontrado: ${data.length}`);
+                    return;
+                }
+
+                // Fazer predição
+                predict({data: data});
+
+            } catch (error) {
+                showError('Erro ao processar CSV: ' + error.message);
+            }
+        }
+
+        function predictManual() {
+            try {
+                const jsonText = document.getElementById('manualData').value.trim();
+                if (!jsonText) {
+                    showError('Por favor, insira os dados no formato JSON.');
+                    return;
+                }
+
+                const data = JSON.parse(jsonText);
+                predict(data);
+
+            } catch (error) {
+                showError('JSON inválido: ' + error.message);
+            }
+        }
+
+        async function predict(payload) {
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showSuccess(result);
+                } else {
+                    showError(result.detail || 'Erro ao fazer predição');
+                }
+
+            } catch (error) {
+                showError('Erro de conexão: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+
+        function showSuccess(result) {
+            const resultDiv = document.getElementById('result');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultContent = document.getElementById('resultContent');
+
+            resultDiv.className = 'result show result-success';
+            resultIcon.className = 'result-icon success';
+            resultIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+
+            resultContent.innerHTML = `
+                <div class="prediction-value">$${result.prediction.toFixed(2)}</div>
+                <div style="text-align: center; color: #565959; margin-bottom: 20px;">
+                    Previsão do próximo preço de fechamento
+                </div>
+                <div class="result-details">
+                    <div class="result-item">
+                        <div class="result-label">Timestamp</div>
+                        <div class="result-value">${new Date(result.timestamp).toLocaleString('pt-BR')}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Modelo</div>
+                        <div class="result-value">v${result.model_version}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Status</div>
+                        <div class="result-value" style="color: #067D62;">✓ Sucesso</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultContent = document.getElementById('resultContent');
+
+            resultDiv.className = 'result show result-error';
+            resultIcon.className = 'result-icon error';
+            resultIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+
+            resultContent.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #C40000; margin-bottom: 10px;">
+                        Erro na Predição
+                    </div>
+                    <div style="color: #565959; font-size: 16px;">
+                        ${message}
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetForm() {
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('fileInput').value = '';
+        }
+
+        function clearManual() {
+            document.getElementById('manualData').value = '';
+            resetForm();
+        }
+    </script>
+</body>
+</html>
+

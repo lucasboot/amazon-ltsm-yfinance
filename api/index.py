@@ -6,8 +6,10 @@ import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.schemas import (
     PredictionRequest,
@@ -33,7 +35,6 @@ from app.monitoring import (
     metrics
 )
 
-# Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,6 @@ async def lifespan(app: FastAPI):
     Gerencia o ciclo de vida da aplicação
     Carrega modelo e scaler no startup
     """
-    # Startup
     structured_log.info("Iniciando aplicação", event="startup")
     
     try:
@@ -73,17 +73,13 @@ async def lifespan(app: FastAPI):
             event="startup_error",
             error=str(e)
         )
-        # Não vamos falhar o startup, mas logar o erro
-        # O modelo será carregado lazy na primeira requisição
     
     yield
     
-    # Shutdown
     structured_log.info("Encerrando aplicação", event="shutdown")
     metrics.log_metrics()
 
 
-# Criar aplicação FastAPI
 app = FastAPI(
     title="Amazon LSTM Stock Price Prediction API",
     description="API para predição de preços de ações usando LSTM",
@@ -91,29 +87,51 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS - permitir requisições de qualquer origem (ajustar em produção)
+BASE_DIR = Path(__file__).parent.parent
+TEMPLATES_DIR = BASE_DIR / "templates"
+
+app.mount("/templates", StaticFiles(directory=str(TEMPLATES_DIR)), name="templates")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar domínios
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-@app.get("/", tags=["Root"])
+@app.get("/", tags=["Root"], include_in_schema=False)
 async def root():
-    """Endpoint raiz - informações básicas da API"""
+    """Serve a interface web HTML"""
+    html_path = TEMPLATES_DIR / "index.html"
+    if html_path.exists():
+        return FileResponse(str(html_path))
+    else:
+        return {
+            "name": "Amazon LSTM Stock Price Prediction API",
+            "version": settings.MODEL_VERSION,
+            "status": "online",
+            "message": "Interface HTML não encontrada. Use /api para info da API."
+        }
+
+
+@app.get("/api", tags=["Root"])
+async def api_info():
+    """Endpoint para informações da API (JSON)"""
     return {
         "name": "Amazon LSTM Stock Price Prediction API",
         "version": settings.MODEL_VERSION,
         "status": "online",
         "endpoints": {
+            "web_interface": "/",
             "predict": "/predict",
             "health": "/health",
             "model_info": "/model/info",
-            "metrics": "/metrics"
-        }
+            "metrics": "/metrics",
+            "docs": "/docs"
+        },
+        "description": "API RESTful para predição de preços de ações usando modelo LSTM"
     }
 
 
@@ -147,7 +165,6 @@ async def predict(request: PredictionRequest):
             num_records=len(request.data)
         )
         
-        # Verificar se modelo está carregado
         if not is_model_loaded() or not is_scaler_loaded():
             structured_log.warning(
                 "Modelo não carregado, tentando carregar...",
@@ -307,4 +324,5 @@ async def global_exception_handler(request, exc):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
