@@ -66,3 +66,5 @@ check:
 	@python --version || echo "  ⚠️  Python não encontrado!"
 	@echo ""
 
+
+
