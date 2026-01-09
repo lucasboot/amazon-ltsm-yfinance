@@ -12,11 +12,5 @@
     "LOOKBACK": "60",
     "FEATURES": "open,high,low,close,volume",
     "TARGET": "close"
-  },
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 10,
-      "memory": 1024
-    }
   }
 }
