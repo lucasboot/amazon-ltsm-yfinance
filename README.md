@@ -94,7 +94,6 @@ Acesse `http://localhost:8000` no navegador para usar a **interface web interati
 - 📱 Totalmente responsivo
 - ✅ Validações automáticas em tempo real
 
-**Documentação completa:** Veja [INTERFACE.md](INTERFACE.md)
 
 ## 📡 Endpoints
 
