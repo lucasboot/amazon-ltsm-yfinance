@@ -2,6 +2,11 @@
 
 API RESTful construída com FastAPI para servir predições de preços de ações da Amazon usando um modelo LSTM treinado com TensorFlow.
 
+## 🌐 Live Demo
+
+**🔗 Interface Web:** [https://amazon-ltsm-yfinance-production.up.railway.app/](https://amazon-ltsm-yfinance-production.up.railway.app/)
+**📚 Documentação API:** [https://amazon-ltsm-yfinance-production.up.railway.app/docs](https://amazon-ltsm-yfinance-production.up.railway.app/docs)
+
 ## 🚀 Features
 
 - ✅ **Interface web moderna** com identidade visual Amazon
@@ -41,7 +46,8 @@ amazon-ltsm-yfinance/
 │   ├── test_api.py           # Testes automatizados
 │   └── test_payload.json     # Payload de exemplo
 ├── requirements.txt
-├── vercel.json
+├── Procfile
+├── railway.toml
 └── README.md
 ```
 
@@ -220,72 +226,7 @@ curl -X POST http://localhost:8000/predict \
   -d @tests/test_payload.json
 ```
 
-## 🚢 Deploy na Vercel
-
-### Opção 1: Via Dashboard (Recomendado)
-
-1. **Crie conta na Vercel** (se ainda não tiver)
-   - Acesse: https://vercel.com/signup
-   - Faça login com GitHub
-
-2. **Importe o repositório**
-   - No dashboard, clique em "Add New Project"
-   - Selecione seu repositório do GitHub
-   - Vercel detectará automaticamente o `vercel.json`
-
-3. **Configure variáveis de ambiente** (opcional)
-   - `LOG_LEVEL=INFO`
-   - `MODEL_VERSION=1.0`
-
-4. **Deploy automático**
-   - Cada push na branch `main` → deploy em produção
-   - Pull requests → preview deployments automáticos
-
-### Opção 2: Via CLI
-
-```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Login
-vercel login
-
-# Deploy
-vercel --prod
-```
-
-## ⚙️ Configuração do Vercel
-
-O arquivo `vercel.json` já está configurado com:
-
-- **Runtime:** Python 3.9+
-- **Timeout:** 60s (ajustável)
-- **Memória:** 3008MB (máximo)
-- **Variáveis de ambiente** pré-configuradas
-
-### ⚠️ Limites Importantes
-
-| Recurso | Hobby Plan | Pro Plan |
-|---------|------------|----------|
-| Tamanho do deploy | 50MB | 100MB |
-| Timeout | 10s | 60s |
-| Memória | 1024MB | 3008MB |
-
-**Nota:** Se o deploy exceder 50MB (por causa do TensorFlow), considere:
-- Usar `tensorflow-cpu` em vez de `tensorflow` no `requirements.txt`
-- Upgrade para plano Pro
-- Considerar ONNX Runtime como alternativa
-
 ## 📊 Monitoramento
-
-### Vercel Observability
-
-Acesse o dashboard da Vercel para visualizar:
-- **Latência** das requisições
-- **Erros** e stack traces
-- **Uso de memória** e CPU
-- **Cold starts**
-- **Logs estruturados**
 
 ### Logs Estruturados
 
@@ -325,7 +266,3 @@ Todos os logs são em formato JSON para melhor análise:
 ## 📜 Licença
 
 Este projeto é parte de um trabalho acadêmico da Pós-Tech da FIAP.
-
----
-
-**Status do Deploy:** [![Deploy](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/seu-usuario/amazon-ltsm-yfinance)
