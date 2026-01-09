@@ -69,25 +69,46 @@ source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate  # Windows
 ```
 
-### 3. Instale as dependências
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Coloque os artefatos do modelo
+### 3. Coloque os artefatos do modelo
 
 Certifique-se de ter os arquivos na pasta `artifacts/`:
 - `amzn_lstm_model.keras` - Modelo LSTM treinado
 - `scaler.save` - Scaler para normalização
 
-### 5. Execute localmente
+### 4. Instale as dependências e execute
+
+**Opção 1: Usando Makefile (recomendado)**
 
 ```bash
+# Instalar dependências
+make install
+
+# Executar a API
+make run
+```
+
+**Opção 2: Manual**
+
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Executar a API
 uvicorn api.index:app --reload
 ```
 
+### 5. Acesse a aplicação
+
 A API estará disponível em: `http://localhost:8000`
+
+### 📋 Outros comandos úteis
+
+```bash
+make help        # Ver todos os comandos disponíveis
+make test        # Executar testes
+make check       # Verificar estrutura do projeto
+make clean       # Limpar arquivos temporários
+```
 
 ## 🌐 Interface Web
 
