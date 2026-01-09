@@ -302,69 +302,6 @@ Todos os logs são em formato JSON para melhor análise:
 }
 ```
 
-## 🔍 Troubleshooting
-
-### Erro: "Modelo não encontrado"
-
-**Problema:** Arquivos do modelo não estão na pasta `artifacts/`
-
-**Solução:**
-```bash
-# Verifique se os arquivos existem
-ls -la artifacts/
-
-# Devem existir:
-# - amzn_lstm_model.keras
-# - scaler.save
-```
-
----
-
-### Erro: "Deployment size exceeded"
-
-**Problema:** TensorFlow é muito pesado (>50MB)
-
-**Solução:**
-```bash
-# Opção 1: Usar tensorflow-cpu (mais leve)
-# Edite requirements.txt:
-tensorflow-cpu==2.16.1
-
-# Opção 2: Upgrade para Vercel Pro
-# Opção 3: Considere ONNX Runtime
-```
-
----
-
-### Erro: "Function timeout"
-
-**Problema:** Inferência levando mais de 10s (Hobby plan)
-
-**Solução:**
-- Upgrade para Vercel Pro (60s timeout)
-- Otimize o modelo (quantização)
-- Verifique o tamanho dos dados de entrada
-
----
-
-### Cold Starts lentos
-
-**Problema:** Primeira requisição demora muito
-
-**Causa:** Vercel serverless precisa carregar o modelo
-
-**Mitigação:**
-- Esperado em serverless (3-5s)
-- Mantenha a função "aquecida" com requests periódicos
-- Considere Vercel Pro para melhor performance
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch: `git checkout -b feature/nova-feature`
-3. Commit: `git commit -m 'Adiciona nova feature'`
-4. Push: `git push origin feature/nova-feature`
-5. Abra um Pull Request
 
 ## 📝 Notas Técnicas
 
@@ -387,14 +324,7 @@ tensorflow-cpu==2.16.1
 
 ## 📜 Licença
 
-Este projeto é parte de um trabalho acadêmico da Pós-Tech.
-
-## 🆘 Suporte
-
-Para problemas ou dúvidas:
-1. Verifique a seção [Troubleshooting](#-troubleshooting)
-2. Consulte os logs no dashboard da Vercel
-3. Abra uma issue no GitHub
+Este projeto é parte de um trabalho acadêmico da Pós-Tech da FIAP.
 
 ---
 
