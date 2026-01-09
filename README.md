@@ -4,8 +4,10 @@ API RESTful construída com FastAPI para servir predições de preços de açõe
 
 ## 🚀 Features
 
+- ✅ **Interface web moderna** com identidade visual Amazon
 - ✅ **Predição de preços** com modelo LSTM
 - ✅ **Deploy serverless** na Vercel
+- ✅ **Upload de CSV** ou entrada manual via JSON
 - ✅ **Monitoramento integrado** com Vercel Observability
 - ✅ **Validação robusta** de entrada com Pydantic
 - ✅ **Health checks** e métricas
@@ -81,10 +83,26 @@ uvicorn api.index:app --reload
 
 A API estará disponível em: `http://localhost:8000`
 
+## 🌐 Interface Web
+
+Acesse `http://localhost:8000` no navegador para usar a **interface web interativa**!
+
+**Features:**
+- 📤 Upload de arquivo CSV (drag & drop)
+- ⌨️ Entrada manual de dados (JSON)
+- 🎨 Design com identidade visual Amazon
+- 📱 Totalmente responsivo
+- ✅ Validações automáticas em tempo real
+
+**Documentação completa:** Veja [INTERFACE.md](INTERFACE.md)
+
 ## 📡 Endpoints
 
 ### `GET /`
-Informações básicas da API
+**Interface Web HTML** - Acesse no navegador para usar a interface gráfica
+
+### `GET /api`
+Informações básicas da API (JSON)
 
 **Resposta:**
 ```json
@@ -311,7 +329,7 @@ ls -la artifacts/
 ```bash
 # Opção 1: Usar tensorflow-cpu (mais leve)
 # Edite requirements.txt:
-tensorflow-cpu==2.15.0
+tensorflow-cpu==2.16.1
 
 # Opção 2: Upgrade para Vercel Pro
 # Opção 3: Considere ONNX Runtime
@@ -382,5 +400,3 @@ Para problemas ou dúvidas:
 ---
 
 **Status do Deploy:** [![Deploy](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/seu-usuario/amazon-ltsm-yfinance)
-
-**Feito com ❤️ usando FastAPI + TensorFlow + Vercel**
