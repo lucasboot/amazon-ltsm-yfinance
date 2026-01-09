@@ -8,12 +8,13 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # Machine Learning
-tensorflow==2.15.0
-# Se o deployment exceder 50MB, use: tensorflow-cpu==2.15.0
-scikit-learn==1.3.2
+tensorflow==2.16.1
+# Se o deployment exceder 50MB, use: tensorflow-cpu==2.16.1
+scikit-learn==1.4.0
 joblib==1.3.2
-numpy==1.24.3
+numpy==1.26.4
 
 # Utilitários
 python-dateutil==2.8.2
+
 
