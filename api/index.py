@@ -181,7 +181,6 @@ async def predict(request: PredictionRequest):
                     detail="Modelo não disponível. Tente novamente em alguns segundos."
                 )
         
-        # Executar predição
         prediction = inference_pipeline.predict(request.data)
         
         duration = time.time() - start_time
@@ -194,7 +193,6 @@ async def predict(request: PredictionRequest):
         return prediction
         
     except ValueError as e:
-        # Erros de validação (dados insuficientes, etc)
         duration = time.time() - start_time
         log_prediction_request(
             num_records=len(request.data),
@@ -208,7 +206,6 @@ async def predict(request: PredictionRequest):
         )
         
     except Exception as e:
-        # Erros internos
         duration = time.time() - start_time
         log_prediction_request(
             num_records=len(request.data),
@@ -240,7 +237,6 @@ async def health():
     model_loaded = is_model_loaded()
     scaler_loaded = is_scaler_loaded()
     
-    # Determinar status
     if model_loaded and scaler_loaded:
         status_str = "healthy"
     elif not model_loaded and not scaler_loaded:
@@ -320,7 +316,6 @@ async def global_exception_handler(request, exc):
     )
 
 
-# Para rodar localmente com: uvicorn api.index:app --reload
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

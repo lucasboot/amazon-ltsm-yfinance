@@ -50,7 +50,6 @@ class InferencePipeline:
         Returns:
             Array numpy com shape (n_samples, n_features)
         """
-        # Extrair features dos candles
         features_list = []
         
         for candle in data:
@@ -63,9 +62,7 @@ class InferencePipeline:
             ]
             features_list.append(features)
         
-        # Converter para numpy array
         X = np.array(features_list, dtype=np.float32)
-        
         logger.info(f"Features preparadas: shape={X.shape}")
         
         return X
@@ -80,9 +77,7 @@ class InferencePipeline:
         Returns:
             Array com últimos LOOKBACK registros
         """
-        # Pegar últimos LOOKBACK registros
         sequence = X[-self.lookback:]
-        
         logger.info(f"Sequência extraída: shape={sequence.shape}")
         
         return sequence
@@ -99,8 +94,6 @@ class InferencePipeline:
             Array com features normalizadas
         """
         scaler = get_scaler()
-        
-        # Transform retorna array 2D
         X_scaled = scaler.transform(X)
         
         logger.info(
@@ -120,9 +113,7 @@ class InferencePipeline:
         Returns:
             Array 3D (1, timesteps, features)
         """
-        # Reshape para (batch_size=1, timesteps, features)
         X_reshaped = X.reshape(1, self.lookback, self.n_features)
-        
         logger.info(f"Reshape para LSTM: shape={X_reshaped.shape}")
         
         return X_reshaped
@@ -139,11 +130,7 @@ class InferencePipeline:
             Predição (valor normalizado)
         """
         model = get_model()
-        
-        # Fazer predição
         prediction = model.predict(X, verbose=0)
-        
-        # Extrair valor (prediction tem shape (1, 1) ou (1,))
         pred_value = float(prediction[0][0] if prediction.ndim > 1 else prediction[0])
         
         logger.info(f"Predição (normalizada): {pred_value:.6f}")
@@ -162,15 +149,10 @@ class InferencePipeline:
         """
         scaler = get_scaler()
         
-        # Criar array com zeros para todas as features
-        # A feature do target (close) é a índice 3
         dummy_array = np.zeros((1, self.n_features))
-        dummy_array[0, 3] = pred_normalized  # close é a 4ª feature (índice 3)
+        dummy_array[0, 3] = pred_normalized
         
-        # Desnormalizar
         denormalized = scaler.inverse_transform(dummy_array)
-        
-        # Extrair apenas o valor do close
         pred_real = float(denormalized[0, 3])
         
         logger.info(f"Predição (desnormalizada): {pred_real:.2f}")
@@ -193,28 +175,14 @@ class InferencePipeline:
             RuntimeError: Se houver erro na predição
         """
         try:
-            # 1. Validar entrada
             self._validate_input(data)
-            
-            # 2. Preparar features
             X = self._prepare_features(data)
-            
-            # 3. Extrair últimos LOOKBACK registros
             X_sequence = self._get_last_sequence(X)
-            
-            # 4. Normalizar
             X_scaled = self._scale_features(X_sequence)
-            
-            # 5. Reshape para LSTM
             X_reshaped = self._reshape_for_lstm(X_scaled)
-            
-            # 6. Predizer
             pred_normalized = self._predict(X_reshaped)
-            
-            # 7. Desnormalizar
             pred_real = self._denormalize_prediction(pred_normalized)
             
-            # 8. Criar resposta
             response = PredictionResponse(
                 prediction=pred_real,
                 model_version=settings.MODEL_VERSION
@@ -235,8 +203,4 @@ class InferencePipeline:
             raise RuntimeError(f"Erro na predição: {str(e)}") from e
 
 
-# Instância global do pipeline
 inference_pipeline = InferencePipeline()
-
-
-

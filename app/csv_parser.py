@@ -40,11 +40,9 @@ def parse_csv_to_candles(csv_content: str) -> List[CandleData]:
                 f"Campos esperados: Open, High, Low, Close, Volume (case-insensitive)"
             )
         
-        # Parse rows
         candles = []
-        for i, row in enumerate(reader, start=2):  # linha 2 (1 é header)
+        for i, row in enumerate(reader, start=2):
             try:
-                # Normalizar keys (lowercase)
                 row_normalized = {k.lower().strip(): v.strip() for k, v in row.items()}
                 
                 candle = CandleData(
@@ -94,7 +92,6 @@ def validate_csv_format(csv_content: str) -> dict:
         csv_file = io.StringIO(csv_content)
         reader = csv.DictReader(csv_file)
         
-        # Validar headers
         required_fields = {'open', 'high', 'low', 'close', 'volume'}
         headers = set(field.lower().strip() for field in reader.fieldnames or [])
         
@@ -106,7 +103,6 @@ def validate_csv_format(csv_content: str) -> dict:
                 "num_rows": 0
             }
         
-        # Contar linhas
         num_rows = sum(1 for _ in reader)
         
         if num_rows < 60:
